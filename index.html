@@ -1,0 +1,914 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BridgeCompare - Cross-Chain Bridge Optimizer</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: #0B0E1A;
+            color: #FFFFFF;
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        /* Animated gradient background */
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: 
+                radial-gradient(circle at 20% 80%, rgba(120, 119, 198, 0.3) 0%, transparent 50%),
+                radial-gradient(circle at 80% 20%, rgba(255, 119, 198, 0.3) 0%, transparent 50%),
+                radial-gradient(circle at 40% 40%, rgba(120, 219, 255, 0.2) 0%, transparent 50%);
+            animation: gradientShift 10s ease-in-out infinite alternate;
+            pointer-events: none;
+            z-index: -1;
+        }
+
+        @keyframes gradientShift {
+            0% { opacity: 0.5; transform: scale(1); }
+            100% { opacity: 0.8; transform: scale(1.1); }
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 24px;
+            position: relative;
+            z-index: 1;
+        }
+
+        /* Header */
+        .header {
+            text-align: center;
+            margin-bottom: 48px;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 12px;
+            margin-bottom: 16px;
+        }
+
+        .logo-icon {
+            width: 48px;
+            height: 48px;
+            background: linear-gradient(135deg, #667EEA 0%, #764BA2 100%);
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+        }
+
+        .header h1 {
+            font-size: 2.5rem;
+            font-weight: 700;
+            background: linear-gradient(135deg, #667EEA 0%, #764BA2 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .header p {
+            font-size: 1.1rem;
+            color: #9CA3AF;
+            max-width: 600px;
+            margin: 0 auto;
+            line-height: 1.6;
+        }
+
+        /* Main card */
+        .bridge-card {
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 24px;
+            padding: 32px;
+            margin-bottom: 32px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .bridge-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 1px;
+            background: linear-gradient(90deg, transparent 0%, rgba(255, 255, 255, 0.2) 50%, transparent 100%);
+        }
+
+        /* Form styling */
+        .bridge-form {
+            display: grid;
+            gap: 24px;
+        }
+
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 24px;
+        }
+
+        .form-group {
+            position: relative;
+        }
+
+        .form-label {
+            display: block;
+            font-size: 0.875rem;
+            font-weight: 500;
+            color: #D1D5DB;
+            margin-bottom: 8px;
+        }
+
+        .form-select, .form-input {
+            width: 100%;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 12px;
+            padding: 16px;
+            color: #FFFFFF;
+            font-size: 16px;
+            font-family: inherit;
+            transition: all 0.3s ease;
+            backdrop-filter: blur(10px);
+        }
+
+        .form-select:focus, .form-input:focus {
+            outline: none;
+            border-color: #667EEA;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+
+        .form-select option {
+            background: #1F2937;
+            color: #FFFFFF;
+        }
+
+        .swap-button {
+            position: absolute;
+            right: -12px;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 40px;
+            height: 40px;
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            backdrop-filter: blur(10px);
+            z-index: 2;
+        }
+
+        .swap-button:hover {
+            background: rgba(102, 126, 234, 0.2);
+            transform: translateY(-50%) rotate(180deg);
+        }
+
+        .amount-group {
+            grid-column: span 2;
+        }
+
+        .amount-input-wrapper {
+            position: relative;
+        }
+
+        .currency-indicator {
+            position: absolute;
+            right: 16px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #9CA3AF;
+            font-size: 14px;
+            font-weight: 500;
+        }
+
+        /* Compare button */
+        .compare-btn {
+            background: linear-gradient(135deg, #667EEA 0%, #764BA2 100%);
+            border: none;
+            border-radius: 12px;
+            padding: 18px 32px;
+            color: #FFFFFF;
+            font-size: 16px;
+            font-weight: 600;
+            font-family: inherit;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+            grid-column: span 2;
+            margin-top: 8px;
+        }
+
+        .compare-btn::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+            transition: left 0.5s ease;
+        }
+
+        .compare-btn:hover::before {
+            left: 100%;
+        }
+
+        .compare-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(102, 126, 234, 0.3);
+        }
+
+        .compare-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        /* Results section */
+        .results-section {
+            margin-top: 32px;
+        }
+
+        .results-header {
+            margin-bottom: 24px;
+        }
+
+        .results-title {
+            font-size: 1.5rem;
+            font-weight: 600;
+            margin-bottom: 8px;
+        }
+
+        .results-subtitle {
+            color: #9CA3AF;
+            font-size: 0.9rem;
+        }
+
+        .bridge-result {
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 16px;
+            padding: 24px;
+            margin-bottom: 16px;
+            transition: all 0.3s ease;
+            cursor: pointer;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .bridge-result::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(135deg, transparent 0%, rgba(102, 126, 234, 0.05) 100%);
+            opacity: 0;
+            transition: opacity 0.3s ease;
+            pointer-events: none;
+        }
+
+        .bridge-result:hover::before {
+            opacity: 1;
+        }
+
+        .bridge-result:hover {
+            border-color: rgba(102, 126, 234, 0.3);
+            transform: translateY(-2px);
+        }
+
+        .bridge-result.best {
+            background: linear-gradient(135deg, rgba(34, 197, 94, 0.1) 0%, rgba(22, 163, 74, 0.05) 100%);
+            border-color: rgba(34, 197, 94, 0.3);
+        }
+
+        .bridge-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .bridge-name-section {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .bridge-logo {
+            width: 32px;
+            height: 32px;
+            border-radius: 8px;
+            background: linear-gradient(135deg, #667EEA 0%, #764BA2 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 16px;
+            font-weight: 600;
+        }
+
+        .bridge-name {
+            font-size: 1.2rem;
+            font-weight: 600;
+        }
+
+        .best-badge {
+            background: rgba(34, 197, 94, 0.2);
+            color: #22C55E;
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        .bridge-metrics {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+            gap: 20px;
+        }
+
+        .metric {
+            text-align: center;
+        }
+
+        .metric-label {
+            font-size: 0.8rem;
+            color: #9CA3AF;
+            margin-bottom: 4px;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        .metric-value {
+            font-size: 1.1rem;
+            font-weight: 600;
+        }
+
+        .metric-value.fee {
+            color: #EF4444;
+        }
+
+        .metric-value.time {
+            color: #3B82F6;
+        }
+
+        .metric-value.gas {
+            color: #F59E0B;
+        }
+
+        .metric-value.reliability {
+            color: #10B981;
+        }
+
+        /* Loading state */
+        .loading {
+            text-align: center;
+            padding: 48px;
+            color: #9CA3AF;
+        }
+
+        .loading-spinner {
+            width: 32px;
+            height: 32px;
+            border: 2px solid rgba(102, 126, 234, 0.2);
+            border-top: 2px solid #667EEA;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 16px;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        /* Stats section */
+        .stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 24px;
+            margin-top: 48px;
+        }
+
+        .stat-card {
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 16px;
+            padding: 24px;
+            text-align: center;
+            transition: all 0.3s ease;
+        }
+
+        .stat-card:hover {
+            background: rgba(255, 255, 255, 0.05);
+            transform: translateY(-2px);
+        }
+
+        .stat-number {
+            font-size: 2rem;
+            font-weight: 700;
+            background: linear-gradient(135deg, #667EEA 0%, #764BA2 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 8px;
+        }
+
+        .stat-label {
+            color: #9CA3AF;
+            font-size: 0.9rem;
+        }
+
+        /* Savings info */
+        .savings-info {
+            background: linear-gradient(135deg, rgba(34, 197, 94, 0.1) 0%, rgba(22, 163, 74, 0.05) 100%);
+            border: 1px solid rgba(34, 197, 94, 0.2);
+            border-radius: 12px;
+            padding: 20px;
+            margin-top: 24px;
+            text-align: center;
+        }
+
+        .savings-amount {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: #22C55E;
+            margin-bottom: 4px;
+        }
+
+        .savings-text {
+            color: #9CA3AF;
+            font-size: 0.9rem;
+        }
+
+        /* Mobile responsive */
+        @media (max-width: 768px) {
+            .form-row {
+                grid-template-columns: 1fr;
+            }
+            
+            .amount-group {
+                grid-column: span 1;
+            }
+            
+            .compare-btn {
+                grid-column: span 1;
+            }
+            
+            .header h1 {
+                font-size: 2rem;
+            }
+            
+            .container {
+                padding: 16px;
+            }
+            
+            .bridge-card {
+                padding: 24px 20px;
+            }
+            
+            .swap-button {
+                position: relative;
+                right: auto;
+                top: auto;
+                transform: none;
+                margin: 16px auto;
+                grid-column: span 1;
+            }
+            
+            .bridge-metrics {
+                grid-template-columns: repeat(2, 1fr);
+                gap: 16px;
+            }
+        }
+
+        /* Custom scrollbar */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: rgba(255, 255, 255, 0.05);
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: rgba(102, 126, 234, 0.3);
+            border-radius: 4px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: rgba(102, 126, 234, 0.5);
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header class="header">
+            <div class="logo">
+                <div class="logo-icon">🌉</div>
+                <h1>BridgeCompare</h1>
+            </div>
+            <p>Find the fastest and cheapest way to bridge your crypto across chains</p>
+        </header>
+
+        <main class="bridge-card">
+            <form class="bridge-form">
+                <div class="form-row">
+                    <div class="form-group">
+                        <label class="form-label" for="fromChain">From Chain</label>
+                        <select class="form-select" id="fromChain">
+                            <option value="">Select source chain</option>
+                            <option value="ethereum">🔵 Ethereum</option>
+                            <option value="polygon">🟣 Polygon</option>
+                            <option value="arbitrum">🔴 Arbitrum</option>
+                            <option value="optimism">🔴 Optimism</option>
+                            <option value="avalanche">🔺 Avalanche</option>
+                            <option value="bsc">🟡 BNB Smart Chain</option>
+                            <option value="fantom">👻 Fantom</option>
+                            <option value="solana">🟢 Solana</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group" style="position: relative;">
+                        <label class="form-label" for="toChain">To Chain</label>
+                        <select class="form-select" id="toChain">
+                            <option value="">Select destination chain</option>
+                            <option value="ethereum">🔵 Ethereum</option>
+                            <option value="polygon">🟣 Polygon</option>
+                            <option value="arbitrum">🔴 Arbitrum</option>
+                            <option value="optimism">🔴 Optimism</option>
+                            <option value="avalanche">🔺 Avalanche</option>
+                            <option value="bsc">🟡 BNB Smart Chain</option>
+                            <option value="fantom">👻 Fantom</option>
+                            <option value="solana">🟢 Solana</option>
+                        </select>
+                        <div class="swap-button" onclick="swapChains()">
+                            ⇄
+                        </div>
+                    </div>
+                </div>
+
+                <div class="form-group amount-group">
+                    <label class="form-label" for="amount">Amount</label>
+                    <div class="amount-input-wrapper">
+                        <input type="number" class="form-input" id="amount" placeholder="Enter amount to bridge" min="1" step="0.01">
+                        <div class="currency-indicator">USD</div>
+                    </div>
+                </div>
+
+                <button type="button" class="compare-btn" onclick="compareBridges()">
+                    <span id="btnText">Compare Bridge Options</span>
+                </button>
+            </form>
+
+            <div id="results" class="results-section"></div>
+        </main>
+
+        <div class="stats">
+            <div class="stat-card">
+                <div class="stat-number">$18.6B+</div>
+                <div class="stat-label">Monthly Bridge Volume</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number">30%</div>
+                <div class="stat-label">Average Savings</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number">8</div>
+                <div class="stat-label">Supported Chains</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number">< 3s</div>
+                <div class="stat-label">Comparison Speed</div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Enhanced bridge data with more realistic information
+        const bridgeData = {
+            'ethereum-polygon': [
+                {
+                    name: 'Polygon Bridge',
+                    logo: 'P',
+                    fee: 8.90,
+                    gasEstimate: 4.10,
+                    time: '8-10 min',
+                    reliability: 99.5,
+                    affiliateUrl: 'https://wallet.polygon.technology/bridge?ref=bridgecompare'
+                },
+                {
+                    name: 'Stargate Finance',
+                    logo: 'S',
+                    fee: 12.50,
+                    gasEstimate: 3.20,
+                    time: '2-3 min',
+                    reliability: 99.8,
+                    affiliateUrl: 'https://stargate.finance?ref=bridgecompare'
+                },
+                {
+                    name: 'Across Protocol',
+                    logo: 'A',
+                    fee: 15.20,
+                    gasEstimate: 2.80,
+                    time: '30 sec',
+                    reliability: 99.9,
+                    affiliateUrl: 'https://across.to?ref=bridgecompare'
+                },
+                {
+                    name: 'Hop Protocol',
+                    logo: 'H',
+                    fee: 11.40,
+                    gasEstimate: 3.50,
+                    time: '3-5 min',
+                    reliability: 99.2,
+                    affiliateUrl: 'https://app.hop.exchange?ref=bridgecompare'
+                }
+            ],
+            'ethereum-arbitrum': [
+                {
+                    name: 'Arbitrum Bridge',
+                    logo: 'A',
+                    fee: 5.20,
+                    gasEstimate: 2.80,
+                    time: '7-10 min',
+                    reliability: 99.9,
+                    affiliateUrl: 'https://bridge.arbitrum.io?ref=bridgecompare'
+                },
+                {
+                    name: 'Across Protocol',
+                    logo: 'A',
+                    fee: 8.70,
+                    gasEstimate: 1.90,
+                    time: '20-40 sec',
+                    reliability: 99.9,
+                    affiliateUrl: 'https://across.to?ref=bridgecompare'
+                },
+                {
+                    name: 'Stargate Finance',
+                    logo: 'S',
+                    fee: 11.80,
+                    gasEstimate: 3.40,
+                    time: '2-3 min',
+                    reliability: 99.8,
+                    affiliateUrl: 'https://stargate.finance?ref=bridgecompare'
+                },
+                {
+                    name: 'Hop Protocol',
+                    logo: 'H',
+                    fee: 9.90,
+                    gasEstimate: 2.90,
+                    time: '4-6 min',
+                    reliability: 99.1,
+                    affiliateUrl: 'https://app.hop.exchange?ref=bridgecompare'
+                }
+            ],
+            'polygon-avalanche': [
+                {
+                    name: 'Stargate Finance',
+                    logo: 'S',
+                    fee: 18.90,
+                    gasEstimate: 4.20,
+                    time: '3-5 min',
+                    reliability: 99.8,
+                    affiliateUrl: 'https://stargate.finance?ref=bridgecompare'
+                },
+                {
+                    name: 'Multichain',
+                    logo: 'M',
+                    fee: 22.50,
+                    gasEstimate: 3.80,
+                    time: '5-8 min',
+                    reliability: 99.1,
+                    affiliateUrl: 'https://multichain.org?ref=bridgecompare'
+                }
+            ]
+        };
+
+        function swapChains() {
+            const fromChain = document.getElementById('fromChain');
+            const toChain = document.getElementById('toChain');
+            
+            const fromValue = fromChain.value;
+            const toValue = toChain.value;
+            
+            fromChain.value = toValue;
+            toChain.value = fromValue;
+            
+            // Clear results when swapping
+            document.getElementById('results').innerHTML = '';
+        }
+
+        async function compareBridges() {
+            const fromChain = document.getElementById('fromChain').value;
+            const toChain = document.getElementById('toChain').value;
+            const amount = parseFloat(document.getElementById('amount').value);
+            const resultsDiv = document.getElementById('results');
+            const btnText = document.getElementById('btnText');
+
+            // Validation
+            if (!fromChain || !toChain || !amount || amount <= 0) {
+                alert('Please fill in all fields with valid values');
+                return;
+            }
+
+            if (fromChain === toChain) {
+                alert('Source and destination chains must be different');
+                return;
+            }
+
+            // Show loading
+            btnText.textContent = 'Finding Best Routes...';
+            document.querySelector('.compare-btn').disabled = true;
+            
+            resultsDiv.innerHTML = `
+                <div class="results-header">
+                    <h3 class="results-title">Comparing Bridge Options</h3>
+                    <p class="results-subtitle">Finding the best rates for your transfer...</p>
+                </div>
+                <div class="loading">
+                    <div class="loading-spinner"></div>
+                    <div>Scanning bridge protocols...</div>
+                </div>
+            `;
+
+            // Simulate API delay
+            await new Promise(resolve => setTimeout(resolve, 2500));
+
+            // Get bridge options
+            const bridgeKey = `${fromChain}-${toChain}`;
+            const bridges = bridgeData[bridgeKey] || [];
+
+            if (bridges.length === 0) {
+                resultsDiv.innerHTML = `
+                    <div class="results-header">
+                        <h3 class="results-title">Route Not Available</h3>
+                        <p class="results-subtitle">This bridge route is not yet supported</p>
+                    </div>
+                    <div style="text-align: center; padding: 48px; color: #9CA3AF;">
+                        <div style="font-size: 3rem; margin-bottom: 16px;">🚧</div>
+                        <h3 style="margin-bottom: 8px;">Route Under Development</h3>
+                        <p>We're working to add more bridge routes. Check back soon!</p>
+                    </div>
+                `;
+            } else {
+                // Calculate total costs and sort by cheapest
+                const bridgesWithTotal = bridges.map(bridge => ({
+                    ...bridge,
+                    totalCost: bridge.fee + bridge.gasEstimate,
+                    scaledFee: (bridge.fee / 1000) * amount,
+                    scaledGas: (bridge.gasEstimate / 1000) * amount
+                })).sort((a, b) => a.totalCost - b.totalCost);
+
+                const resultsHeader = `
+                    <div class="results-header">
+                        <h3 class="results-title">${bridges.length} Bridge Options Found</h3>
+                        <p class="results-subtitle">Sorted by total cost (fees + gas)</p>
+                    </div>
+                `;
+
+                let bridgeCards = '';
+                bridgesWithTotal.forEach((bridge, index) => {
+                    const isBest = index === 0;
+                    const totalCost = bridge.scaledFee + bridge.scaledGas;
+                    
+                    bridgeCards += `
+                        <div class="bridge-result ${isBest ? 'best' : ''}" onclick="selectBridge('${bridge.affiliateUrl}', '${bridge.name}')">
+                            <div class="bridge-header">
+                                <div class="bridge-name-section">
+                                    <div class="bridge-logo">${bridge.logo}</div>
+                                    <div class="bridge-name">${bridge.name}</div>
+                                </div>
+                                ${isBest ? '<div class="best-badge">🏆 Best Price</div>' : ''}
+                            </div>
+                            <div class="bridge-metrics">
+                                <div class="metric">
+                                    <div class="metric-label">Total Cost</div>
+                                    <div class="metric-value fee">$${totalCost.toFixed(2)}</div>
+                                </div>
+                                <div class="metric">
+                                    <div class="metric-label">Bridge Fee</div>
+                                    <div class="metric-value">$${bridge.scaledFee.toFixed(2)}</div>
+                                </div>
+                                <div class="metric">
+                                    <div class="metric-label">Gas Cost</div>
+                                    <div class="metric-value gas">$${bridge.scaledGas.toFixed(2)}</div>
+                                </div>
+                                <div class="metric">
+                                    <div class="metric-label">Est. Time</div>
+                                    <div class="metric-value time">${bridge.time}</div>
+                                </div>
+                                <div class="metric">
+                                    <div class="metric-label">Reliability</div>
+                                    <div class="metric-value reliability">${bridge.reliability}%</div>
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                });
+
+                // Add savings calculation
+                let savingsSection = '';
+                if (bridgesWithTotal.length > 1) {
+                    const bestPrice = bridgesWithTotal[0].scaledFee + bridgesWithTotal[0].scaledGas;
+                    const worstPrice = bridgesWithTotal[bridgesWithTotal.length - 1].scaledFee + bridgesWithTotal[bridgesWithTotal.length - 1].scaledGas;
+                    const savings = worstPrice - bestPrice;
+                    const savingsPercent = ((savings / worstPrice) * 100).toFixed(1);
+                    
+                    savingsSection = `
+                        <div class="savings-info">
+                            <div class="savings-amount">Save $${savings.toFixed(2)} (${savingsPercent}%)</div>
+                            <div class="savings-text">by choosing the most cost-effective bridge option</div>
+                        </div>
+                    `;
+                }
+
+                resultsDiv.innerHTML = resultsHeader + bridgeCards + savingsSection;
+            }
+
+            // Reset button
+            btnText.textContent = 'Compare Bridge Options';
+            document.querySelector('.compare-btn').disabled = false;
+        }
+
+        function selectBridge(affiliateUrl, bridgeName) {
+            // Track the click for analytics
+            console.log(`User selected ${bridgeName} - redirecting to ${affiliateUrl}`);
+            
+            // Show confirmation with professional styling
+            if (confirm(`🚀 Proceed to ${bridgeName}?\n\nThis helps us keep BridgeCompare free by earning a small commission.`)) {
+                window.open(affiliateUrl, '_blank');
+            }
+        }
+
+        // Enhanced form interactions
+        document.getElementById('fromChain').addEventListener('change', function() {
+            const toChain = document.getElementById('toChain');
+            Array.from(toChain.options).forEach(option => {
+                option.disabled = option.value === this.value;
+            });
+            document.getElementById('results').innerHTML = '';
+        });
+
+        document.getElementById('toChain').addEventListener('change', function() {
+            const fromChain = document.getElementById('fromChain');
+            Array.from(fromChain.options).forEach(option => {
+                option.disabled = option.value === this.value;
+            });
+            document.getElementById('results').innerHTML = '';
+            
+            // Auto-focus amount field when chains are selected
+            if (this.value && fromChain.value) {
+                setTimeout(() => {
+                    document.getElementById('amount').focus();
+                }, 100);
+            }
+        });
+
+        // Clear results when amount changes
+        document.getElementById('amount').addEventListener('input', function() {
+            document.getElementById('results').innerHTML = '';
+        });
+
+        // Enter key support
+        document.addEventListener('keydown', function(event) {
+            if (event.key === 'Enter' && !event.shiftKey) {
+                const fromChain = document.getElementById('fromChain').value;
+                const toChain = document.getElementById('toChain').value;
+                const amount = document.getElementById('amount').value;
+                
+                if (fromChain && toChain && amount) {
+                    compareBridges();
+                }
+            }
+        });
+    </script>
+</body>
+</html>
