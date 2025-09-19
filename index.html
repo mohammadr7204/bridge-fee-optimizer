@@ -268,6 +268,27 @@
             font-size: 0.9rem;
         }
 
+        .api-status {
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 12px;
+            padding: 16px;
+            margin-bottom: 20px;
+            font-size: 0.85rem;
+        }
+
+        .api-status.warning {
+            border-color: rgba(251, 191, 36, 0.3);
+            background: rgba(251, 191, 36, 0.05);
+            color: #FBB928;
+        }
+
+        .api-status.error {
+            border-color: rgba(239, 68, 68, 0.3);
+            background: rgba(239, 68, 68, 0.05);
+            color: #EF4444;
+        }
+
         .bridge-result {
             background: rgba(255, 255, 255, 0.03);
             border: 1px solid rgba(255, 255, 255, 0.08);
@@ -349,6 +370,17 @@
             gap: 4px;
         }
 
+        .live-badge {
+            background: rgba(59, 130, 246, 0.2);
+            color: #3B82F6;
+            padding: 4px 8px;
+            border-radius: 12px;
+            font-size: 0.6rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
         .bridge-metrics {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
@@ -407,6 +439,31 @@
 
         @keyframes spin {
             to { transform: rotate(360deg); }
+        }
+
+        .loading-steps {
+            margin-top: 16px;
+        }
+
+        .loading-step {
+            padding: 4px 0;
+            font-size: 0.85rem;
+            opacity: 0.6;
+        }
+
+        .loading-step.active {
+            opacity: 1;
+            color: #667EEA;
+        }
+
+        .loading-step.complete {
+            opacity: 0.8;
+            color: #10B981;
+        }
+
+        .loading-step.error {
+            opacity: 1;
+            color: #EF4444;
         }
 
         /* Stats section */
@@ -550,9 +607,6 @@
                             <option value="arbitrum">🔴 Arbitrum</option>
                             <option value="optimism">🔴 Optimism</option>
                             <option value="avalanche">🔺 Avalanche</option>
-                            <option value="bsc">🟡 BNB Smart Chain</option>
-                            <option value="fantom">👻 Fantom</option>
-                            <option value="solana">🟢 Solana</option>
                         </select>
                     </div>
 
@@ -565,9 +619,6 @@
                             <option value="arbitrum">🔴 Arbitrum</option>
                             <option value="optimism">🔴 Optimism</option>
                             <option value="avalanche">🔺 Avalanche</option>
-                            <option value="bsc">🟡 BNB Smart Chain</option>
-                            <option value="fantom">👻 Fantom</option>
-                            <option value="solana">🟢 Solana</option>
                         </select>
                         <div class="swap-button" onclick="swapChains()">
                             ⇄
@@ -576,10 +627,10 @@
                 </div>
 
                 <div class="form-group amount-group">
-                    <label class="form-label" for="amount">Amount</label>
+                    <label class="form-label" for="amount">Amount (USDC)</label>
                     <div class="amount-input-wrapper">
-                        <input type="number" class="form-input" id="amount" placeholder="Enter amount to bridge" min="1" step="0.01">
-                        <div class="currency-indicator">USD</div>
+                        <input type="number" class="form-input" id="amount" placeholder="Enter USDC amount to bridge" min="1" step="0.01">
+                        <div class="currency-indicator">USDC</div>
                     </div>
                 </div>
 
@@ -593,124 +644,45 @@
 
         <div class="stats">
             <div class="stat-card">
-                <div class="stat-number">$18.6B+</div>
-                <div class="stat-label">Monthly Bridge Volume</div>
+                <div class="stat-number">Live</div>
+                <div class="stat-label">Real-Time Pricing</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number">3</div>
+                <div class="stat-label">Bridge APIs</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number">5</div>
+                <div class="stat-label">Supported Chains</div>
             </div>
             <div class="stat-card">
                 <div class="stat-number">30%</div>
                 <div class="stat-label">Average Savings</div>
             </div>
-            <div class="stat-card">
-                <div class="stat-number">8</div>
-                <div class="stat-label">Supported Chains</div>
-            </div>
-            <div class="stat-card">
-                <div class="stat-number">< 3s</div>
-                <div class="stat-label">Comparison Speed</div>
-            </div>
         </div>
     </div>
 
+    <!-- Load the Bridge API module -->
+    <script src="js/bridge-api.js"></script>
+
     <script>
-        // Enhanced bridge data with more realistic information
-        const bridgeData = {
-            'ethereum-polygon': [
-                {
-                    name: 'Polygon Bridge',
-                    logo: 'P',
-                    fee: 8.90,
-                    gasEstimate: 4.10,
-                    time: '8-10 min',
-                    reliability: 99.5,
-                    affiliateUrl: 'https://wallet.polygon.technology/bridge?ref=bridgecompare'
-                },
-                {
-                    name: 'Stargate Finance',
-                    logo: 'S',
-                    fee: 12.50,
-                    gasEstimate: 3.20,
-                    time: '2-3 min',
-                    reliability: 99.8,
-                    affiliateUrl: 'https://stargate.finance?ref=bridgecompare'
-                },
-                {
-                    name: 'Across Protocol',
-                    logo: 'A',
-                    fee: 15.20,
-                    gasEstimate: 2.80,
-                    time: '30 sec',
-                    reliability: 99.9,
-                    affiliateUrl: 'https://across.to?ref=bridgecompare'
-                },
-                {
-                    name: 'Hop Protocol',
-                    logo: 'H',
-                    fee: 11.40,
-                    gasEstimate: 3.50,
-                    time: '3-5 min',
-                    reliability: 99.2,
-                    affiliateUrl: 'https://app.hop.exchange?ref=bridgecompare'
+        // Initialize the Bridge API
+        const bridgeAPI = new BridgeAPI();
+        let loadingSteps = [];
+
+        function updateLoadingStep(stepName, status) {
+            const stepDiv = document.getElementById(`step-${stepName.replace(/\s+/g, '-').toLowerCase()}`);
+            if (stepDiv) {
+                stepDiv.className = `loading-step ${status}`;
+                if (status === 'complete') {
+                    stepDiv.innerHTML = `✓ ${stepName}`;
+                } else if (status === 'error') {
+                    stepDiv.innerHTML = `✗ ${stepName}`;
+                } else if (status === 'active') {
+                    stepDiv.innerHTML = `⏳ ${stepName}`;
                 }
-            ],
-            'ethereum-arbitrum': [
-                {
-                    name: 'Arbitrum Bridge',
-                    logo: 'A',
-                    fee: 5.20,
-                    gasEstimate: 2.80,
-                    time: '7-10 min',
-                    reliability: 99.9,
-                    affiliateUrl: 'https://bridge.arbitrum.io?ref=bridgecompare'
-                },
-                {
-                    name: 'Across Protocol',
-                    logo: 'A',
-                    fee: 8.70,
-                    gasEstimate: 1.90,
-                    time: '20-40 sec',
-                    reliability: 99.9,
-                    affiliateUrl: 'https://across.to?ref=bridgecompare'
-                },
-                {
-                    name: 'Stargate Finance',
-                    logo: 'S',
-                    fee: 11.80,
-                    gasEstimate: 3.40,
-                    time: '2-3 min',
-                    reliability: 99.8,
-                    affiliateUrl: 'https://stargate.finance?ref=bridgecompare'
-                },
-                {
-                    name: 'Hop Protocol',
-                    logo: 'H',
-                    fee: 9.90,
-                    gasEstimate: 2.90,
-                    time: '4-6 min',
-                    reliability: 99.1,
-                    affiliateUrl: 'https://app.hop.exchange?ref=bridgecompare'
-                }
-            ],
-            'polygon-avalanche': [
-                {
-                    name: 'Stargate Finance',
-                    logo: 'S',
-                    fee: 18.90,
-                    gasEstimate: 4.20,
-                    time: '3-5 min',
-                    reliability: 99.8,
-                    affiliateUrl: 'https://stargate.finance?ref=bridgecompare'
-                },
-                {
-                    name: 'Multichain',
-                    logo: 'M',
-                    fee: 22.50,
-                    gasEstimate: 3.80,
-                    time: '5-8 min',
-                    reliability: 99.1,
-                    affiliateUrl: 'https://multichain.org?ref=bridgecompare'
-                }
-            ]
-        };
+            }
+        }
 
         function swapChains() {
             const fromChain = document.getElementById('fromChain');
@@ -744,113 +716,176 @@
                 return;
             }
 
-            // Show loading
+            if (amount < 1) {
+                alert('Minimum amount is $1 USDC');
+                return;
+            }
+
+            // Show loading with steps
             btnText.textContent = 'Finding Best Routes...';
             document.querySelector('.compare-btn').disabled = true;
             
+            const loadingStepNames = ['Stargate Finance', 'Across Protocol', 'Hop Protocol'];
+            const loadingStepsHTML = loadingStepNames.map(step => 
+                `<div id="step-${step.replace(/\s+/g, '-').toLowerCase()}" class="loading-step">⏳ Checking ${step}...</div>`
+            ).join('');
+
             resultsDiv.innerHTML = `
                 <div class="results-header">
-                    <h3 class="results-title">Comparing Bridge Options</h3>
-                    <p class="results-subtitle">Finding the best rates for your transfer...</p>
+                    <h3 class="results-title">Fetching Live Bridge Quotes</h3>
+                    <p class="results-subtitle">Connecting to bridge APIs for real-time pricing...</p>
                 </div>
                 <div class="loading">
                     <div class="loading-spinner"></div>
-                    <div>Scanning bridge protocols...</div>
+                    <div>Querying bridge protocols...</div>
+                    <div class="loading-steps">
+                        ${loadingStepsHTML}
+                    </div>
                 </div>
             `;
 
-            // Simulate API delay
-            await new Promise(resolve => setTimeout(resolve, 2500));
+            try {
+                // Get quotes from all bridges
+                updateLoadingStep('Stargate Finance', 'active');
+                updateLoadingStep('Across Protocol', 'active');
+                updateLoadingStep('Hop Protocol', 'active');
 
-            // Get bridge options
-            const bridgeKey = `${fromChain}-${toChain}`;
-            const bridges = bridgeData[bridgeKey] || [];
+                const result = await bridgeAPI.getAllQuotes(fromChain, toChain, amount);
+                const { quotes, errors } = result;
 
-            if (bridges.length === 0) {
-                resultsDiv.innerHTML = `
-                    <div class="results-header">
-                        <h3 class="results-title">Route Not Available</h3>
-                        <p class="results-subtitle">This bridge route is not yet supported</p>
-                    </div>
-                    <div style="text-align: center; padding: 48px; color: #9CA3AF;">
-                        <div style="font-size: 3rem; margin-bottom: 16px;">🚧</div>
-                        <h3 style="margin-bottom: 8px;">Route Under Development</h3>
-                        <p>We're working to add more bridge routes. Check back soon!</p>
-                    </div>
-                `;
-            } else {
-                // Calculate total costs and sort by cheapest
-                const bridgesWithTotal = bridges.map(bridge => ({
-                    ...bridge,
-                    totalCost: bridge.fee + bridge.gasEstimate,
-                    scaledFee: (bridge.fee / 1000) * amount,
-                    scaledGas: (bridge.gasEstimate / 1000) * amount
-                })).sort((a, b) => a.totalCost - b.totalCost);
-
-                const resultsHeader = `
-                    <div class="results-header">
-                        <h3 class="results-title">${bridges.length} Bridge Options Found</h3>
-                        <p class="results-subtitle">Sorted by total cost (fees + gas)</p>
-                    </div>
-                `;
-
-                let bridgeCards = '';
-                bridgesWithTotal.forEach((bridge, index) => {
-                    const isBest = index === 0;
-                    const totalCost = bridge.scaledFee + bridge.scaledGas;
+                // Update loading steps based on results
+                loadingStepNames.forEach(stepName => {
+                    const hasQuote = quotes.some(q => q.name.includes(stepName.split(' ')[0]));
+                    const hasError = errors.some(e => e.bridge.includes(stepName.split(' ')[0]));
                     
-                    bridgeCards += `
-                        <div class="bridge-result ${isBest ? 'best' : ''}" onclick="selectBridge('${bridge.affiliateUrl}', '${bridge.name}')">
-                            <div class="bridge-header">
-                                <div class="bridge-name-section">
-                                    <div class="bridge-logo">${bridge.logo}</div>
-                                    <div class="bridge-name">${bridge.name}</div>
-                                </div>
-                                ${isBest ? '<div class="best-badge">🏆 Best Price</div>' : ''}
-                            </div>
-                            <div class="bridge-metrics">
-                                <div class="metric">
-                                    <div class="metric-label">Total Cost</div>
-                                    <div class="metric-value fee">$${totalCost.toFixed(2)}</div>
-                                </div>
-                                <div class="metric">
-                                    <div class="metric-label">Bridge Fee</div>
-                                    <div class="metric-value">$${bridge.scaledFee.toFixed(2)}</div>
-                                </div>
-                                <div class="metric">
-                                    <div class="metric-label">Gas Cost</div>
-                                    <div class="metric-value gas">$${bridge.scaledGas.toFixed(2)}</div>
-                                </div>
-                                <div class="metric">
-                                    <div class="metric-label">Est. Time</div>
-                                    <div class="metric-value time">${bridge.time}</div>
-                                </div>
-                                <div class="metric">
-                                    <div class="metric-label">Reliability</div>
-                                    <div class="metric-value reliability">${bridge.reliability}%</div>
-                                </div>
-                            </div>
-                        </div>
-                    `;
+                    if (hasQuote) {
+                        updateLoadingStep(stepName, 'complete');
+                    } else if (hasError) {
+                        updateLoadingStep(stepName, 'error');
+                    }
                 });
 
-                // Add savings calculation
-                let savingsSection = '';
-                if (bridgesWithTotal.length > 1) {
-                    const bestPrice = bridgesWithTotal[0].scaledFee + bridgesWithTotal[0].scaledGas;
-                    const worstPrice = bridgesWithTotal[bridgesWithTotal.length - 1].scaledFee + bridgesWithTotal[bridgesWithTotal.length - 1].scaledGas;
-                    const savings = worstPrice - bestPrice;
-                    const savingsPercent = ((savings / worstPrice) * 100).toFixed(1);
-                    
-                    savingsSection = `
-                        <div class="savings-info">
-                            <div class="savings-amount">Save $${savings.toFixed(2)} (${savingsPercent}%)</div>
-                            <div class="savings-text">by choosing the most cost-effective bridge option</div>
+                // Wait a moment to show the loading completion
+                await new Promise(resolve => setTimeout(resolve, 1500));
+
+                if (quotes.length === 0) {
+                    resultsDiv.innerHTML = `
+                        <div class="results-header">
+                            <h3 class="results-title">No Routes Available</h3>
+                            <p class="results-subtitle">This bridge route is not currently supported</p>
+                        </div>
+                        <div class="api-status error">
+                            <strong>API Status:</strong> All bridge APIs failed to return quotes for this route.
+                            ${errors.map(e => `<br/>• ${e.bridge}: ${e.error}`).join('')}
+                        </div>
+                        <div style="text-align: center; padding: 48px; color: #9CA3AF;">
+                            <div style="font-size: 3rem; margin-bottom: 16px;">🚧</div>
+                            <h3 style="margin-bottom: 8px;">Route Under Development</h3>
+                            <p>This route may not be supported by the selected bridges, or there may be temporary API issues.</p>
                         </div>
                     `;
+                } else {
+                    // Sort quotes by total cost (fee + gas)
+                    quotes.sort((a, b) => (a.fee + a.gasEstimate) - (b.fee + b.gasEstimate));
+
+                    let apiStatusHTML = '';
+                    if (errors.length > 0) {
+                        apiStatusHTML = `
+                            <div class="api-status warning">
+                                <strong>⚠️ Some APIs unavailable:</strong> 
+                                ${errors.map(e => `${e.bridge} (${e.error})`).join(', ')}
+                            </div>
+                        `;
+                    }
+
+                    const resultsHeader = `
+                        <div class="results-header">
+                            <h3 class="results-title">${quotes.length} Live Bridge Quote${quotes.length > 1 ? 's' : ''} Found</h3>
+                            <p class="results-subtitle">Real-time pricing from bridge APIs • Updated now</p>
+                        </div>
+                        ${apiStatusHTML}
+                    `;
+
+                    let bridgeCards = '';
+                    quotes.forEach((bridge, index) => {
+                        const isBest = index === 0;
+                        const totalCost = bridge.fee + bridge.gasEstimate;
+                        
+                        bridgeCards += `
+                            <div class="bridge-result ${isBest ? 'best' : ''}" onclick="selectBridge('${bridge.affiliateUrl}', '${bridge.name}')">
+                                <div class="bridge-header">
+                                    <div class="bridge-name-section">
+                                        <div class="bridge-logo">${bridge.logo}</div>
+                                        <div>
+                                            <div class="bridge-name">${bridge.name}</div>
+                                            <div class="live-badge">Live API</div>
+                                        </div>
+                                    </div>
+                                    ${isBest ? '<div class="best-badge">🏆 Best Price</div>' : ''}
+                                </div>
+                                <div class="bridge-metrics">
+                                    <div class="metric">
+                                        <div class="metric-label">Total Cost</div>
+                                        <div class="metric-value fee">$${totalCost.toFixed(2)}</div>
+                                    </div>
+                                    <div class="metric">
+                                        <div class="metric-label">Bridge Fee</div>
+                                        <div class="metric-value">$${bridge.fee.toFixed(2)}</div>
+                                    </div>
+                                    <div class="metric">
+                                        <div class="metric-label">Gas Estimate</div>
+                                        <div class="metric-value gas">$${bridge.gasEstimate.toFixed(2)}</div>
+                                    </div>
+                                    <div class="metric">
+                                        <div class="metric-label">Est. Time</div>
+                                        <div class="metric-value time">${bridge.time}</div>
+                                    </div>
+                                    <div class="metric">
+                                        <div class="metric-label">Reliability</div>
+                                        <div class="metric-value reliability">${bridge.reliability}%</div>
+                                    </div>
+                                </div>
+                            </div>
+                        `;
+                    });
+
+                    // Add savings calculation
+                    let savingsSection = '';
+                    if (quotes.length > 1) {
+                        const bestPrice = quotes[0].fee + quotes[0].gasEstimate;
+                        const worstPrice = quotes[quotes.length - 1].fee + quotes[quotes.length - 1].gasEstimate;
+                        const savings = worstPrice - bestPrice;
+                        const savingsPercent = ((savings / worstPrice) * 100).toFixed(1);
+                        
+                        if (savings > 0.01) { // Only show savings if meaningful
+                            savingsSection = `
+                                <div class="savings-info">
+                                    <div class="savings-amount">Save $${savings.toFixed(2)} (${savingsPercent}%)</div>
+                                    <div class="savings-text">by choosing the most cost-effective bridge option</div>
+                                </div>
+                            `;
+                        }
+                    }
+
+                    resultsDiv.innerHTML = resultsHeader + bridgeCards + savingsSection;
                 }
 
-                resultsDiv.innerHTML = resultsHeader + bridgeCards + savingsSection;
+            } catch (error) {
+                console.error('Bridge comparison failed:', error);
+                resultsDiv.innerHTML = `
+                    <div class="results-header">
+                        <h3 class="results-title">Comparison Failed</h3>
+                        <p class="results-subtitle">Unable to fetch bridge quotes</p>
+                    </div>
+                    <div class="api-status error">
+                        <strong>Error:</strong> ${error.message || 'Unknown error occurred while fetching bridge quotes'}
+                    </div>
+                    <div style="text-align: center; padding: 48px; color: #9CA3AF;">
+                        <div style="font-size: 3rem; margin-bottom: 16px;">⚠️</div>
+                        <h3 style="margin-bottom: 8px;">Service Temporarily Unavailable</h3>
+                        <p>Please try again in a few moments. The bridge APIs may be experiencing temporary issues.</p>
+                    </div>
+                `;
             }
 
             // Reset button
