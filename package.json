@@ -1,0 +1,45 @@
+{
+  "name": "bridge-fee-optimizer",
+  "version": "1.0.0",
+  "description": "Cross-chain bridge fee comparison tool - find the cheapest way to bridge crypto between blockchains",
+  "main": "index.html",
+  "scripts": {
+    "start": "python -m http.server 8000",
+    "dev": "python -m http.server 3000",
+    "build": "echo 'No build step required for vanilla HTML/CSS/JS'",
+    "lint": "echo 'Linting not configured yet'",
+    "test": "echo 'Tests not configured yet'"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/mohammadr7204/bridge-fee-optimizer.git"
+  },
+  "keywords": [
+    "crypto",
+    "blockchain",
+    "bridge",
+    "defi",
+    "cross-chain",
+    "ethereum",
+    "polygon",
+    "arbitrum",
+    "optimism",
+    "web3",
+    "comparison-tool",
+    "fee-optimizer"
+  ],
+  "author": "BridgeCompare Team",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/mohammadr7204/bridge-fee-optimizer/issues"
+  },
+  "homepage": "https://github.com/mohammadr7204/bridge-fee-optimizer#readme",
+  "devDependencies": {},
+  "engines": {
+    "node": ">=14.0.0"
+  },
+  "funding": {
+    "type": "affiliate",
+    "url": "https://github.com/mohammadr7204/bridge-fee-optimizer"
+  }
+}
