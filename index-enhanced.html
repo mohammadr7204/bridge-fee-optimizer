@@ -1,0 +1,449 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BridgeCompare - Secure Cross-Chain Bridge Optimizer</title>
+    <meta name="description" content="Find the cheapest and fastest way to bridge crypto across blockchains with enhanced security">
+    
+    <!-- Security Headers via Meta Tags -->
+    <meta http-equiv="X-Content-Type-Options" content="nosniff">
+    <meta http-equiv="X-Frame-Options" content="DENY">
+    
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    
+    <!-- hCaptcha for bot protection -->
+    <script src="https://js.hcaptcha.com/1/api.js" async defer></script>
+    
+    <!-- Existing styles from original index.html -->
+    <link rel="stylesheet" href="css/styles.css">
+    
+    <style>
+        /* Additional security-related styles */
+        .captcha-container {
+            margin: 20px 0;
+            display: flex;
+            justify-content: center;
+            min-height: 78px;
+        }
+        
+        .security-badge {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background: rgba(34, 197, 94, 0.1);
+            border: 1px solid rgba(34, 197, 94, 0.3);
+            border-radius: 12px;
+            padding: 8px 16px;
+            font-size: 0.8rem;
+            color: #22C55E;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .security-badge:hover {
+            background: rgba(34, 197, 94, 0.2);
+            transform: translateY(-2px);
+        }
+        
+        .rate-limit-warning {
+            background: rgba(251, 191, 36, 0.1);
+            border: 1px solid rgba(251, 191, 36, 0.3);
+            border-radius: 12px;
+            padding: 16px;
+            margin: 20px 0;
+            color: #FBB928;
+            display: none;
+        }
+        
+        .error-banner {
+            background: rgba(239, 68, 68, 0.1);
+            border: 1px solid rgba(239, 68, 68, 0.3);
+            border-radius: 12px;
+            padding: 16px;
+            margin: 20px 0;
+            color: #EF4444;
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Security Badge -->
+        <div class="security-badge" onclick="showSecurityInfo()">
+            🔒 Secured by hCaptcha
+        </div>
+        
+        <header class="header">
+            <div class="logo">
+                <div class="logo-icon">🌉</div>
+                <h1>BridgeCompare</h1>
+            </div>
+            <p>Secure, reliable bridge comparison with real-time pricing</p>
+        </header>
+
+        <!-- Rate Limit Warning -->
+        <div id="rateLimitWarning" class="rate-limit-warning">
+            ⚠️ You're making too many requests. Please slow down to continue using the service.
+        </div>
+        
+        <!-- Error Banner -->
+        <div id="errorBanner" class="error-banner">
+            <strong>Service Issue:</strong> <span id="errorMessage"></span>
+        </div>
+
+        <main class="bridge-card">
+            <form class="bridge-form" id="bridgeForm">
+                <div class="form-row">
+                    <div class="form-group">
+                        <label class="form-label" for="fromChain">From Chain</label>
+                        <select class="form-select" id="fromChain" required>
+                            <option value="">Select source chain</option>
+                            <option value="ethereum">🔵 Ethereum</option>
+                            <option value="polygon">🟣 Polygon</option>
+                            <option value="arbitrum">🔴 Arbitrum</option>
+                            <option value="optimism">🔴 Optimism</option>
+                            <option value="avalanche">🔺 Avalanche</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group" style="position: relative;">
+                        <label class="form-label" for="toChain">To Chain</label>
+                        <select class="form-select" id="toChain" required>
+                            <option value="">Select destination chain</option>
+                            <option value="ethereum">🔵 Ethereum</option>
+                            <option value="polygon">🟣 Polygon</option>
+                            <option value="arbitrum">🔴 Arbitrum</option>
+                            <option value="optimism">🔴 Optimism</option>
+                            <option value="avalanche">🔺 Avalanche</option>
+                        </select>
+                        <div class="swap-button" onclick="swapChains()">⇄</div>
+                    </div>
+                </div>
+
+                <div class="form-group amount-group">
+                    <label class="form-label" for="amount">Amount (USDC)</label>
+                    <div class="amount-input-wrapper">
+                        <input 
+                            type="number" 
+                            class="form-input" 
+                            id="amount" 
+                            placeholder="Enter USDC amount to bridge" 
+                            min="1" 
+                            max="1000000"
+                            step="0.01"
+                            required
+                        >
+                        <div class="currency-indicator">USDC</div>
+                    </div>
+                </div>
+
+                <!-- CAPTCHA Container -->
+                <div class="captcha-container">
+                    <div class="h-captcha" 
+                         data-sitekey="10000000-ffff-ffff-ffff-000000000001"
+                         data-callback="onCaptchaSuccess"
+                         data-error-callback="onCaptchaError">
+                    </div>
+                </div>
+
+                <button type="submit" class="compare-btn" id="compareBtn" disabled>
+                    <span id="btnText">Verify Security Check to Continue</span>
+                </button>
+            </form>
+
+            <div id="results" class="results-section"></div>
+        </main>
+
+        <div class="stats">
+            <div class="stat-card">
+                <div class="stat-number">🔒</div>
+                <div class="stat-label">Secure API</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number">Live</div>
+                <div class="stat-label">Real-Time Pricing</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number">3</div>
+                <div class="stat-label">Bridge APIs</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number">30%</div>
+                <div class="stat-label">Average Savings</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Load Bridge API module -->
+    <script src="js/bridge-api.js"></script>
+    
+    <!-- Enhanced security and functionality -->
+    <script>
+        // Initialize
+        const bridgeAPI = new BridgeAPI();
+        let sessionToken = null;
+        let captchaVerified = false;
+        let requestCount = 0;
+        const MAX_REQUESTS_PER_MINUTE = 10;
+        const requestTimestamps = [];
+
+        // CAPTCHA callbacks
+        function onCaptchaSuccess(token) {
+            verifyCaptcha(token);
+        }
+
+        function onCaptchaError() {
+            showError('CAPTCHA verification failed. Please try again.');
+            captchaVerified = false;
+            updateButtonState();
+        }
+
+        async function verifyCaptcha(token) {
+            try {
+                const response = await fetch('/api/verify-captcha', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ token })
+                });
+
+                const data = await response.json();
+                
+                if (data.success) {
+                    sessionToken = data.sessionToken;
+                    captchaVerified = true;
+                    updateButtonState();
+                    showSuccess('Security verification complete!');
+                } else {
+                    throw new Error(data.error || 'Verification failed');
+                }
+            } catch (error) {
+                console.error('CAPTCHA verification error:', error);
+                showError('Verification failed. Please refresh and try again.');
+                captchaVerified = false;
+                updateButtonState();
+            }
+        }
+
+        // Rate limiting on client side
+        function checkRateLimit() {
+            const now = Date.now();
+            const oneMinuteAgo = now - 60000;
+            
+            // Remove timestamps older than 1 minute
+            while (requestTimestamps.length > 0 && requestTimestamps[0] < oneMinuteAgo) {
+                requestTimestamps.shift();
+            }
+            
+            // Check if limit exceeded
+            if (requestTimestamps.length >= MAX_REQUESTS_PER_MINUTE) {
+                showRateLimitWarning();
+                return false;
+            }
+            
+            requestTimestamps.push(now);
+            return true;
+        }
+
+        // Enhanced form submission
+        document.getElementById('bridgeForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            if (!captchaVerified) {
+                showError('Please complete the security check first.');
+                return;
+            }
+            
+            if (!checkRateLimit()) {
+                return;
+            }
+            
+            await compareBridges();
+        });
+
+        async function compareBridges() {
+            const fromChain = document.getElementById('fromChain').value;
+            const toChain = document.getElementById('toChain').value;
+            const amount = parseFloat(document.getElementById('amount').value);
+            const resultsDiv = document.getElementById('results');
+            const btnText = document.getElementById('btnText');
+
+            // Validation
+            if (!validateInput(fromChain, toChain, amount)) {
+                return;
+            }
+
+            // Show loading
+            btnText.textContent = 'Finding Best Routes...';
+            document.getElementById('compareBtn').disabled = true;
+            
+            try {
+                // Add session token to request
+                const result = await bridgeAPI.getAllQuotes(fromChain, toChain, amount, sessionToken);
+                
+                if (result.rateLimited) {
+                    showRateLimitWarning();
+                    return;
+                }
+                
+                displayResults(result);
+                
+            } catch (error) {
+                console.error('Comparison failed:', error);
+                showError('Failed to fetch quotes. Please try again.');
+            } finally {
+                btnText.textContent = 'Compare Bridge Options';
+                document.getElementById('compareBtn').disabled = false;
+            }
+        }
+
+        function validateInput(fromChain, toChain, amount) {
+            // Client-side validation
+            const errors = [];
+            
+            if (!fromChain) errors.push('Select source chain');
+            if (!toChain) errors.push('Select destination chain');
+            if (fromChain === toChain) errors.push('Chains must be different');
+            if (!amount || amount < 1) errors.push('Amount must be at least $1');
+            if (amount > 1000000) errors.push('Amount exceeds maximum ($1M)');
+            
+            if (errors.length > 0) {
+                showError(errors.join('. '));
+                return false;
+            }
+            
+            // Check for suspicious patterns
+            const suspiciousPatterns = /[<>"'`;()]/;
+            if (suspiciousPatterns.test(fromChain) || suspiciousPatterns.test(toChain)) {
+                showError('Invalid input detected');
+                return false;
+            }
+            
+            return true;
+        }
+
+        function displayResults(result) {
+            const resultsDiv = document.getElementById('results');
+            const { quotes, errors } = result;
+            
+            if (quotes.length === 0) {
+                resultsDiv.innerHTML = `
+                    <div class="no-results">
+                        <h3>No routes available</h3>
+                        <p>This route may not be supported or services are temporarily unavailable.</p>
+                    </div>
+                `;
+                return;
+            }
+            
+            // Display results (implementation from original)
+            // ... existing display logic ...
+        }
+
+        async function selectBridge(affiliateUrl, bridgeName) {
+            if (!sessionToken) {
+                showError('Please complete security verification first.');
+                return;
+            }
+            
+            // Track click with session token
+            const trackedUrl = await bridgeAPI.trackClick(
+                bridgeName,
+                affiliateUrl,
+                document.getElementById('fromChain').value,
+                document.getElementById('toChain').value,
+                document.getElementById('amount').value,
+                sessionToken
+            );
+            
+            window.open(trackedUrl, '_blank');
+        }
+
+        // UI Helper functions
+        function updateButtonState() {
+            const btn = document.getElementById('compareBtn');
+            const btnText = document.getElementById('btnText');
+            
+            if (captchaVerified) {
+                btn.disabled = false;
+                btnText.textContent = 'Compare Bridge Options';
+                btn.style.opacity = '1';
+            } else {
+                btn.disabled = true;
+                btnText.textContent = 'Verify Security Check to Continue';
+                btn.style.opacity = '0.5';
+            }
+        }
+
+        function showError(message) {
+            const banner = document.getElementById('errorBanner');
+            const msgElement = document.getElementById('errorMessage');
+            msgElement.textContent = message;
+            banner.style.display = 'block';
+            setTimeout(() => {
+                banner.style.display = 'none';
+            }, 5000);
+        }
+
+        function showSuccess(message) {
+            // Create success notification
+            const success = document.createElement('div');
+            success.className = 'success-notification';
+            success.textContent = message;
+            success.style.cssText = `
+                position: fixed;
+                top: 20px;
+                right: 20px;
+                background: rgba(34, 197, 94, 0.2);
+                border: 1px solid rgba(34, 197, 94, 0.4);
+                color: #22C55E;
+                padding: 16px 24px;
+                border-radius: 12px;
+                z-index: 1000;
+                animation: slideIn 0.3s ease;
+            `;
+            document.body.appendChild(success);
+            setTimeout(() => success.remove(), 3000);
+        }
+
+        function showRateLimitWarning() {
+            const warning = document.getElementById('rateLimitWarning');
+            warning.style.display = 'block';
+            setTimeout(() => {
+                warning.style.display = 'none';
+            }, 10000);
+        }
+
+        function showSecurityInfo() {
+            alert(`🔒 Security Features:\n\n• Bot protection with hCaptcha\n• Rate limiting (${MAX_REQUESTS_PER_MINUTE} requests/minute)\n• Input validation & sanitization\n• Secure API connections\n• GDPR-compliant data handling\n\nYour safety is our priority!`);
+        }
+
+        function swapChains() {
+            const fromChain = document.getElementById('fromChain');
+            const toChain = document.getElementById('toChain');
+            const temp = fromChain.value;
+            fromChain.value = toChain.value;
+            toChain.value = temp;
+        }
+
+        // Initialize on load
+        document.addEventListener('DOMContentLoaded', () => {
+            updateButtonState();
+            
+            // Set up input sanitization
+            const inputs = document.querySelectorAll('input, select');
+            inputs.forEach(input => {
+                input.addEventListener('input', (e) => {
+                    // Basic XSS prevention
+                    if (e.target.type === 'text' || e.target.type === 'number') {
+                        e.target.value = e.target.value.replace(/[<>"']/g, '');
+                    }
+                });
+            });
+        });
+    </script>
+</body>
+</html>

@@ -3,12 +3,15 @@ node_modules/
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
+package-lock.json
+yarn.lock
 
 # Build outputs
 dist/
 build/
 .vercel/
 .next/
+out/
 
 # Environment variables
 .env
@@ -16,6 +19,7 @@ build/
 .env.development.local
 .env.test.local
 .env.production.local
+.env*.local
 
 # IDE and editor files
 .vscode/
@@ -23,6 +27,9 @@ build/
 *.swp
 *.swo
 *~
+.DS_Store
+*.sublime-project
+*.sublime-workspace
 
 # OS generated files
 .DS_Store
@@ -32,10 +39,16 @@ build/
 .Trashes
 ehthumbs.db
 Thumbs.db
+desktop.ini
 
 # Logs
 logs
 *.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+lerna-debug.log*
+.pnpm-debug.log*
 
 # Runtime data
 pids
@@ -43,13 +56,53 @@ pids
 *.seed
 *.pid.lock
 
-# Coverage directory used by tools like istanbul
+# Coverage directory
 coverage/
+*.lcov
+.nyc_output/
 
-# API keys (when we add real APIs)
+# Testing
+.jest/
+test-results/
+
+# API keys and secrets
 config.js
 secrets.json
+*.key
+*.pem
+*.cert
 
 # Temporary files
 *.tmp
 *.temp
+.cache/
+.parcel-cache/
+
+# Database
+*.sqlite
+*.sqlite3
+*.db
+
+# Backup files
+*.backup
+*.bak
+*.old
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+.Python
+venv/
+ENV/
+
+# Monitoring
+.sentryclirc
+
+# Documentation build
+docs/_build/
+
+# Misc
+.eslintcache
+.stylelintcache
+*.tsbuildinfo
